@@ -1,5 +1,6 @@
+//setting MUX
 const int controlPin[4] = {8, 9, 10, 11};
-int SIG_pin = 0;
+const int SIG_pin = 0;
 const int interval = 10;
 double volts[2] = {
     0,
@@ -7,9 +8,10 @@ double volts[2] = {
 unsigned int sample[2] = {
     0,
 };
+
 void setup()
 {
-    //initializing multiplexer
+    //initializing MUX
     for (int i = 0; i < 4; i++)
     {
         pinMode(controlPin[i], OUTPUT);
@@ -17,6 +19,7 @@ void setup()
     }
     Serial.begin(9600);
 }
+
 void loop()
 {
     unsigned long now = millis();
@@ -48,7 +51,7 @@ void loop()
     for (int i = 0; i < 2; i++)
     {
         peakToPeak[i] = sigMax[i] - sigMin[i];
-        volts[i] = (peakToPeak[i] * 5.0) / 1024;
+        //volts[i] = (peakToPeak[i] * 5.0) / 1024;
         Serial.print(i);
         Serial.print(" : ");
         Serial.print(peakToPeak[i]);
