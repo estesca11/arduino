@@ -1,17 +1,16 @@
-//setting MUX
-const int controlPin[4] = {8, 9, 10, 11};
+const int controlPin[4] = {8, 9, 10, 11}; //s0~s3 of multiplexer
+#define sensorNum 6
 const int SIG_pin = 0;
 const int interval = 10;
-double volts[2] = {
+double volts[sensorNum] = {
     0,
 };
-unsigned int sample[2] = {
+unsigned int sample[sensorNum] = {
     0,
 };
-
 void setup()
 {
-    //initializing MUX
+    //initializing multiplexer
     for (int i = 0; i < 4; i++)
     {
         pinMode(controlPin[i], OUTPUT);
@@ -19,25 +18,23 @@ void setup()
     }
     Serial.begin(9600);
 }
-
 void loop()
 {
     unsigned long now = millis();
-    unsigned int peakToPeak[2] = {
+    unsigned int peakToPeak[sensorNum] = {
         0,
     };
-    unsigned int sigMin[2] = {
+    unsigned int sigMin[sensorNum] = {
         0,
     },
-                 sigMax[2] = {
+                 sigMax[sensorNum] = {
                      0,
                  };
     while (millis() - now < interval)
     {
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < sensorNum; i++)
         {
             sample[i] = readMux(i);
-
             if (sample[i] > sigMax[i])
             {
                 sigMax[i] = sample[i];
@@ -48,14 +45,17 @@ void loop()
             }
         }
     }
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < sensorNum; i++)
     {
         peakToPeak[i] = sigMax[i] - sigMin[i];
-        //volts[i] = (peakToPeak[i] * 5.0) / 1024;
-        Serial.print(i);
-        Serial.print(" : ");
-        Serial.print(peakToPeak[i]);
-        Serial.print("   ");
+        volts[i] = (peakToPeak[i] * 5.0) / 1024;
+        // Serial.print(i);
+        // Serial.print(" : ");
+        if (peakToPeak[i] < 1023)
+        {
+            Serial.print(peakToPeak[i]);
+            Serial.print("   ");
+        }
     }
     Serial.println("");
 }
