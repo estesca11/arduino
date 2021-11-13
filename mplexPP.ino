@@ -1,5 +1,5 @@
+#define sensorNum 6 
 const int controlPin[4] = {8, 9, 10, 11}; //s0~s3 of multiplexer
-#define sensorNum 6
 const int SIG_pin = 0;
 const int interval = 10;
 double volts[sensorNum] = {
