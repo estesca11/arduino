@@ -33,16 +33,19 @@ void loop()
     //calculating min and max during the interval
     while (millis() - now < interval)
     {
-        for (int channel = 0; channel < sensorNum; channel++) 
+        for (int channel = 0; channel < sensorNum; channel++)
         {
             sample[channel] = readMux(channel); //storing instantaneous value from sensor
-            if (sample[channel] > sigMax[channel])
+            if (sample[channel] < 1023)         //filtering outlier
             {
-                sigMax[channel] = sample[channel];
-            }
-            else if (sample[channel] < sigMin[channel])
-            {
-                sigMin[channel] = sample[channel];
+                if (sample[channel] > sigMax[channel])
+                {
+                    sigMax[channel] = sample[channel];
+                }
+                else if (sample[channel] < sigMin[channel])
+                {
+                    sigMin[channel] = sample[channel];
+                }
             }
         }
     }
@@ -52,11 +55,8 @@ void loop()
         volts[channel] = (peakToPeak[channel] * 5.0) / 1024;
         // Serial.print(channel);
         // Serial.print(" : ");
-        if (peakToPeak[channel] < 1023) //filtering outlier
-        {
-            Serial.print(peakToPeak[channel]);
-            Serial.print("   ");
-        }
+        Serial.print(peakToPeak[channel]);
+        Serial.print("   ");
     }
     Serial.println("");
 }
