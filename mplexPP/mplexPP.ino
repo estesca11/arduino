@@ -1,5 +1,5 @@
-#define sensorNum 6 
-const int controlPin[4] = {8, 9, 10, 11}; //s0~s3 of multiplexer
+#define sensorNum 6                       //number of sensors
+const int controlPin[4] = {8, 9, 10, 11}; //s0~s3 pin of MUX
 const int SIG_pin = 0;
 const int interval = 10;
 double volts[sensorNum] = {
@@ -10,7 +10,7 @@ unsigned int sample[sensorNum] = {
 };
 void setup()
 {
-    //initializing multiplexer
+    //initializing MUX
     for (int i = 0; i < 4; i++)
     {
         pinMode(controlPin[i], OUTPUT);
@@ -30,37 +30,39 @@ void loop()
                  sigMax[sensorNum] = {
                      0,
                  };
+    //calculating min and max during the interval
     while (millis() - now < interval)
     {
-        for (int i = 0; i < sensorNum; i++)
+        for (int channel = 0; channel < sensorNum; channel++) 
         {
-            sample[i] = readMux(i);
-            if (sample[i] > sigMax[i])
+            sample[channel] = readMux(channel); //storing instantaneous value from sensor
+            if (sample[channel] > sigMax[channel])
             {
-                sigMax[i] = sample[i];
+                sigMax[channel] = sample[channel];
             }
-            else if (sample[i] < sigMin[i])
+            else if (sample[channel] < sigMin[channel])
             {
-                sigMin[i] = sample[i];
+                sigMin[channel] = sample[channel];
             }
         }
     }
-    for (int i = 0; i < sensorNum; i++)
+    for (int channel = 0; channel < sensorNum; channel++)
     {
-        peakToPeak[i] = sigMax[i] - sigMin[i];
-        volts[i] = (peakToPeak[i] * 5.0) / 1024;
-        // Serial.print(i);
+        peakToPeak[channel] = sigMax[channel] - sigMin[channel];
+        volts[channel] = (peakToPeak[channel] * 5.0) / 1024;
+        // Serial.print(channel);
         // Serial.print(" : ");
-        if (peakToPeak[i] < 1023)
+        if (peakToPeak[channel] < 1023) //filtering outlier
         {
-            Serial.print(peakToPeak[i]);
+            Serial.print(peakToPeak[channel]);
             Serial.print("   ");
         }
     }
     Serial.println("");
 }
-int readMux(int channel)
+int readMux(const int channel) //returning analog value from channel
 {
+    //binary that deciding input channel of MUX, 0~15
     int muxChannel[16][4] = {
         {0, 0, 0, 0}, //channel 0
         {1, 0, 0, 0}, //channel 1
