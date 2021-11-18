@@ -1,9 +1,10 @@
 unsigned long prev = 0;
 const int interval = 100;
-double volts[2] = {
+#define sensorNum 1  
+double volts[sensorNum] = {
     0,
 };
-unsigned int sample[2] = {
+unsigned int sample[sensorNum] = {
     0,
 };
 void setup()
@@ -13,18 +14,18 @@ void setup()
 void loop()
 {
     unsigned long now = millis();
-    unsigned int peakToPeak[2] = {
+    unsigned int peakToPeak[sensorNum] = {
         0,
     };
-    unsigned int sigMin[2] = {
+    unsigned int sigMin[sensorNum] = {
         0,
     },
-                 sigMax[2] = {
+                 sigMax[sensorNum] = {
                      0,
                  };
     while (millis() - now < interval)
     {
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < sensorNum; i++)
         {
             sample[i] = analogRead(i + 14);
             
@@ -38,7 +39,7 @@ void loop()
             }
         }
     }
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < sensorNum; i++)
     {
         peakToPeak[i] = sigMax[i] - sigMin[i];
         volts[i] = (peakToPeak[i] * 5.0) / 1024;
