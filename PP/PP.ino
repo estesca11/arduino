@@ -1,6 +1,9 @@
 unsigned long prev = 0;
 const int interval = 100;
-#define sensorNum 1  
+const int threshold = 9.0;
+const int ledPin[6] = {8, 9, 10, 11, 12, 13};
+int Sensor1 = 0;
+#define sensorNum 6
 double volts[sensorNum] = {
     0,
 };
@@ -10,6 +13,10 @@ unsigned int sample[sensorNum] = {
 void setup()
 {
     Serial.begin(9600);
+    for (int i = 0; i < sensorNum ; i++)
+    {
+        pinMode(ledPin[i], OUTPUT);
+    }
 }
 void loop()
 {
@@ -28,7 +35,7 @@ void loop()
         for (int i = 0; i < sensorNum; i++)
         {
             sample[i] = analogRead(i + 14);
-            
+
             if (sample[i] > sigMax[i])
             {
                 sigMax[i] = sample[i];
@@ -42,10 +49,14 @@ void loop()
     for (int i = 0; i < sensorNum; i++)
     {
         peakToPeak[i] = sigMax[i] - sigMin[i];
-        volts[i] = (peakToPeak[i] * 5.0) / 1024;
-        Serial.print(i);
-        Serial.print(" : ");
-        Serial.print(peakToPeak[i]);
+        volts[i] = 3 * (peakToPeak[i] * 5.0) / 1024;
+        if (volts[i] > threshold)
+        {
+            digitalWrite(ledPin[i], HIGH);
+        }
+        else
+            digitalWrite(ledPin[i], LOW);
+        Serial.print(volts[i]);
         Serial.print("   ");
     }
     Serial.println("");
