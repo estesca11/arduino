@@ -1,3 +1,4 @@
+// ref : https://steemit.com/kr-arduino/@codingman/calibration
 unsigned long prev = 0;
 const int interval = 100;
 const int threshold = 9.0;
