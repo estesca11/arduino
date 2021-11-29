@@ -1,6 +1,8 @@
+#include <SoftwareSerial.h>
+SoftwareSerial bluetooth(2, 3);
 unsigned long prev = 0;
 const int interval = 100;
-const int threshold = 1.0;
+const int threshold = 1.5;
 const int ledPin[6] = {8, 9, 10, 11, 12, 13};
 #define sensorNum 6
 double volts[sensorNum] = {
@@ -23,6 +25,7 @@ void setup()
     {
         pinMode(ledPin[i], OUTPUT);
     }
+    bluetooth.begin(9600);
 }
 void loop()
 {
@@ -67,18 +70,20 @@ void loop()
         double dt = interval / 10;
         af_value[i] = tau / (tau + dt) * volts_value[i] + dt / (tau + dt) * volts[i];
         volts_value[i] = af_value[i];
-        if (af_value[i] > threshold)
-            digitalWrite(ledPin[i], HIGH);
-        else
-            digitalWrite(ledPin[i], LOW);
-        volts_value[i] = af_value[i];
-        if (af_value[i] < 5.0 && volts[i] < 5.0)
+        if (volts[i] > threshold)
         {
-            Serial.print(af_value[i]);
-           // Serial.print(" ");
-           // Serial.print(volts[i]);
-            Serial.print("  ");
+            digitalWrite(ledPin[i], HIGH);
+            bluetooth.write((i + 1) * 10 + 1);
+            
         }
+        else
+        {
+            digitalWrite(ledPin[i], LOW);
+            bluetooth.write((i + 1) * 10);
+        }
+        Serial.print(volts[i]);
+        Serial.print("  ");
+        volts_value[i] = af_value[i];
     }
     Serial.println("");
 }
