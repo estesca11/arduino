@@ -2,9 +2,8 @@
 SoftwareSerial bluetooth(2, 3);
 unsigned long prev = 0;
 const int interval = 100;
-const int threshold = 1.5;
-const int ledPin[6] = {8, 9, 10, 11, 12, 13};
-#define sensorNum 6
+double threshold = 3.0;
+#define sensorNum 3
 double volts[sensorNum] = {
     0,
 };
@@ -20,15 +19,17 @@ double tau = 100;
 
 void setup()
 {
+    pinMode(8, INPUT_PULLUP);
+    pinMode(9, INPUT_PULLUP);
+    pinMode(10, INPUT_PULLUP);
     Serial.begin(9600);
-    for (int i = 0; i < sensorNum; i++)
-    {
-        pinMode(ledPin[i], OUTPUT);
-    }
     bluetooth.begin(9600);
 }
 void loop()
 {
+    setThreshold(); //THR value from BT
+
+    //initializing
     double af_value[sensorNum] = {
         0,
     };
@@ -47,6 +48,7 @@ void loop()
         0,
     };
 
+    //calculating MIN and MAX of sensor value
     while (millis() - now < interval)
     {
         for (int i = 0; i < sensorNum; i++)
@@ -63,6 +65,8 @@ void loop()
             }
         }
     }
+
+    //LPF
     for (int i = 0; i < sensorNum; i++)
     {
         peakToPeak[i] = sigMax[i] - sigMin[i];
@@ -70,20 +74,54 @@ void loop()
         double dt = interval / 10;
         af_value[i] = tau / (tau + dt) * volts_value[i] + dt / (tau + dt) * volts[i];
         volts_value[i] = af_value[i];
-        if (volts[i] > threshold)
+    }
+
+    //output to serial monitor and BT
+    for (int i = 0; i < sensorNum; i++)
+    {
+        if (af_value[i] > threshold)
         {
-            digitalWrite(ledPin[i], HIGH);
-            bluetooth.write((i + 1) * 10 + 1);
-            
+            bluetooth.write(i + 1);
         }
-        else
-        {
-            digitalWrite(ledPin[i], LOW);
-            bluetooth.write((i + 1) * 10);
-        }
-        Serial.print(volts[i]);
+        Serial.print(af_value[i]);
         Serial.print("  ");
-        volts_value[i] = af_value[i];
     }
     Serial.println("");
 }
+void setThreshold()
+{
+    if (bluetooth.available())
+    {
+        int inputTH = bluetooth.parseInt();
+        Serial.println(inputTH);
+        threshold = (double)inputTH / 10.0;
+    }
+}
+
+/*
+void buttonCheck()
+{
+    for (int i = 0; i < sensorNum; i++)
+    {
+        if ((digitalRead(i + 8)) == 1 && (occupation[i] == 0) && bluetooth.read() == (i + 1) * 10)
+        {
+            occupation[i] = 1;
+        }
+    }
+}
+
+void sendSeatValue()
+{
+    for (int i = 0; i < sensorNum; i++)
+    {
+        if (occupation[i] == 1)
+        {
+            bluetooth.write((i + 1) * 10 + 1);
+        }
+        else if (occupation[i] == 0)
+        {
+            bluetooth.write((i + 1) * 10);
+        }
+    }
+}
+*/
