@@ -15,7 +15,7 @@ double volts_value[sensorNum] = {
 };
 
 //Set the LPF parameter
-double tau = 100;
+double tau = 80;
 
 void setup()
 {
@@ -83,18 +83,18 @@ void loop()
         {
             bluetooth.write(i + 1);
         }
-        Serial.print(af_value[i]);
-        Serial.print("  ");
+        // Serial.print(af_value[i]);
+        //Serial.print("  ");
     }
-    Serial.println("");
+    //Serial.println("");
 }
 void setThreshold()
 {
-    if (bluetooth.available())
+    if (bluetooth.available() > 0)
     {
-        int inputTH = bluetooth.parseInt();
-        Serial.println(inputTH);
+        int inputTH = bluetooth.read();
         threshold = (double)inputTH / 10.0;
+        Serial.println(threshold);
     }
 }
 
