@@ -2,7 +2,7 @@
 SoftwareSerial bluetooth(2, 3);
 unsigned long prev = 0;
 const int interval = 100;
-double threshold = 3.0;
+double threshold = 2.0;
 #define sensorNum 3
 double volts[sensorNum] = {
     0,
@@ -15,13 +15,10 @@ double volts_value[sensorNum] = {
 };
 
 //Set the LPF parameter
-double tau = 80;
+double tau = 3;
 
 void setup()
 {
-    pinMode(8, INPUT_PULLUP);
-    pinMode(9, INPUT_PULLUP);
-    pinMode(10, INPUT_PULLUP);
     Serial.begin(9600);
     bluetooth.begin(9600);
 }
@@ -83,10 +80,17 @@ void loop()
         {
             bluetooth.write(i + 1);
         }
-        // Serial.print(af_value[i]);
-        //Serial.print("  ");
+        delay(10);
+        Serial.print(volts[i]);
+        Serial.print("  ");
     }
-    //Serial.println("");
+    Serial.print(1.0);
+    Serial.print("  ");
+    Serial.print(2.0);
+    Serial.print("  ");
+    Serial.print(3.0);
+    Serial.print("  ");
+    Serial.println("");
 }
 void setThreshold()
 {
@@ -98,30 +102,3 @@ void setThreshold()
     }
 }
 
-/*
-void buttonCheck()
-{
-    for (int i = 0; i < sensorNum; i++)
-    {
-        if ((digitalRead(i + 8)) == 1 && (occupation[i] == 0) && bluetooth.read() == (i + 1) * 10)
-        {
-            occupation[i] = 1;
-        }
-    }
-}
-
-void sendSeatValue()
-{
-    for (int i = 0; i < sensorNum; i++)
-    {
-        if (occupation[i] == 1)
-        {
-            bluetooth.write((i + 1) * 10 + 1);
-        }
-        else if (occupation[i] == 0)
-        {
-            bluetooth.write((i + 1) * 10);
-        }
-    }
-}
-*/
